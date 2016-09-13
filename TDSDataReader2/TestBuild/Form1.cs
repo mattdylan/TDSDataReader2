@@ -1,25 +1,30 @@
 ﻿using System;
 using System.IO;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace TDSDataReader2
 {
-    
-
     public partial class Form1 : Form
     {
         //Global Variable Declarations
         string fileLocation;
         string folderLocation;
+
+        //Open file browser for user to select where to save excel file
+        protected string openFileBrowser()
+        {
+            string excelSavePath = "";
+            FolderBrowserDialog fbd = new FolderBrowserDialog();
+
+            if (fbd.ShowDialog() == DialogResult.OK)
+            {
+                excelSavePath = fbd.SelectedPath;
+            }
+            return excelSavePath;
+        }
         
         public Form1()
         {
@@ -28,7 +33,6 @@ namespace TDSDataReader2
 
         private void SelectFile_Click(object sender, EventArgs e)
         {
-
 
             // Create an instance of the open file dialog box.
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
@@ -47,22 +51,18 @@ namespace TDSDataReader2
             if (userClickedOK == DialogResult.OK)
             {
                 // Open the selected file to read.
-                System.IO.Stream fileStream = openFileDialog1.OpenFile();
+                Stream fileStream = openFileDialog1.OpenFile();
 
-                using (System.IO.StreamReader reader = new System.IO.StreamReader(fileStream))
+                using (StreamReader reader = new StreamReader(fileStream))
                 {
                     // Read the first line from the file and write it the textbox.
                     textBox1.Text = reader.ReadLine();
-
-
-                    string filename = openFileDialog1.FileName;
-                    
+                    string filename = openFileDialog1.FileName;     
                     fileLocation = filename;
-
                     textBox2.Text = filename;
-
                     folderLocation = Path.GetDirectoryName(filename);
                 }
+
                 fileStream.Close();
                 // Code that is going to fetch the tube count and other goodies!
                 string line;
@@ -70,10 +70,8 @@ namespace TDSDataReader2
 
                 StreamReader reader2 = new StreamReader(fileLocation);
 
-
                 while ((line = reader2.ReadLine()) != null)
                 {
-                    
                     counter++;
                 }
                 float finalTubeCount = ((counter - 18f) / 3f);
@@ -83,7 +81,6 @@ namespace TDSDataReader2
                 //Getting an array of all of the file paths for the files in the directory with the selected file
                 string[] dirs = Directory.GetFiles(folderLocation);
                 dirs.ToList().ForEach(Console.WriteLine);
-                
             }
         }
 
@@ -92,18 +89,29 @@ namespace TDSDataReader2
 
         }
         
-        //Runs conversion on selected file
         private void button1_Click(object sender, EventArgs e)
         {
             
+        }
 
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            Global.GlobalCounter = 2;
+        }
+
+        //Runs conversion on selected file
+        private void sendToExcelButton_Click(object sender, EventArgs e)
+        {
             string line;
             int counter = 0;
+
+            //Gets the path where user wants to save the excel file
+            string excelSavePath = openFileBrowser();
 
             StreamReader reader = new StreamReader(fileLocation);
 
             //Testing excel conversion
-            Excel.Application xlApp = new Microsoft.Office.Interop.Excel.Application();
+            Excel.Application xlApp = new Excel.Application();
             if (xlApp == null)
             {
                 MessageBox.Show("Excel is not installed");
@@ -123,30 +131,30 @@ namespace TDSDataReader2
             int rightcounter = 3;
 
             //variables for trimming process
-            char[] charsToTrim = { '"','V' };
+            char[] charsToTrim = { '"', 'V' };
             while ((line = reader.ReadLine()) != null)
             {
                 counter++;
-                
-                if (counter <=1 && counter <= 5)
+
+                if (counter <= 1 && counter <= 5)
                 {
                     Debug.WriteLine("Left Readings");
-                                     
+
                 }
                 //Printing left readings
-                if (counter >= 6 && counter <= (Global.GlobalVar + 5 ))
+                if (counter >= 6 && counter <= (Global.GlobalVar + 5))
                 {
                     line = line.Trim(charsToTrim);
                     Debug.WriteLine(line);
-                    xlWorkSheet.Cells[2,leftCounter] = line;
+                    xlWorkSheet.Cells[2, leftCounter] = line;
                     leftCounter = leftCounter + 3;
-                    
+
                 }
                 if (counter == Global.GlobalVar + 11)
                 {
-                    Debug.WriteLine("Center Readings");                    
+                    Debug.WriteLine("Center Readings");
                 }
-                if (counter > (Global.GlobalVar + 11) && counter <= ((Global.GlobalVar * 2) +11 ))
+                if (counter > (Global.GlobalVar + 11) && counter <= ((Global.GlobalVar * 2) + 11))
                 {
                     line = line.Trim(charsToTrim);
                     Debug.WriteLine(line);
@@ -157,7 +165,7 @@ namespace TDSDataReader2
                 {
                     Debug.WriteLine("Right Readings");
                 }
-                if (counter > ((Global.GlobalVar * 2)+ 17) && counter <= ((Global.GlobalVar * 3) + 17))
+                if (counter > ((Global.GlobalVar * 2) + 17) && counter <= ((Global.GlobalVar * 3) + 17))
                 {
                     line = line.Trim(charsToTrim);
                     Debug.WriteLine(line);
@@ -173,18 +181,16 @@ namespace TDSDataReader2
             Console.ReadLine();
 
             //Saving the Excel File
-            xlWorkBook.SaveAs(@"E:\New folder\PlayingAround\ExcelFolder\test.xlsx", Excel.XlFileFormat.xlWorkbookDefault, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
+
+            //Uncomment this section and comment out the excelSavePath variable to use a hard-coded path for speed during testing
+            //xlWorkBook.SaveAs(@"E:\New folder\PlayingAround\ExcelFolder\test.xlsx", Excel.XlFileFormat.xlWorkbookDefault, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
+
+            //Comment this out and see above to use hard-coded path for speed during testing. 
+            xlWorkBook.SaveAs(excelSavePath + @"\test.xlsx", Excel.XlFileFormat.xlWorkbookDefault, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
             xlWorkBook.Close(true, misValue, misValue);
             xlApp.Quit();
             MessageBox.Show("Conversion Complete");
         }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            Global.GlobalCounter = 2;
-        }
-
-        
     }
 
     //creating the class that will allow for global variable use.
