@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Diagnostics;
 using Excel = Microsoft.Office.Interop.Excel;
+using TDSDataReader2.TestBuild;
 
 namespace TDSDataReader2
 {
@@ -190,6 +191,14 @@ namespace TDSDataReader2
             xlWorkBook.Close(true, misValue, misValue);
             xlApp.Quit();
             MessageBox.Show("Conversion Complete");
+        }
+
+
+        //Shows the file rename utility
+        private void renameFilesButton_Click(object sender, EventArgs e)
+        {
+            fileRenameForm form = new fileRenameForm();
+            form.ShowDialog();
         }
     }
 
