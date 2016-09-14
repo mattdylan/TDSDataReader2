@@ -22,8 +22,27 @@ namespace TDSDataReader2.TestBuild
 
         private void fileRenameForm_Load(object sender, EventArgs e)
         {
-            //Populate the drivesComboBox with valid drives
+            CenterToScreen();
+            //initially populate the drives into the comboBox for selection
+            populateDriveCombo();            
+        }
+
+        //Call a close conformation box to confirm user wants to close the program.
+        private void fileRenameForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Utilities.closeConfirmation(sender, e);
+        }
+
+        //Populate the drivesComboBox with valid drives. Resets in case drive has been added.
+        protected void populateDriveCombo()
+        {
+            drivesComboBox.Items.Clear();
             drivesComboBox.Items.AddRange(Environment.GetLogicalDrives());
+        }
+
+        private void drivesComboBox_Click(object sender, EventArgs e)
+        {
+            populateDriveCombo();
         }
 
         //Gets the file path to use for renaming the files
@@ -70,25 +89,43 @@ namespace TDSDataReader2.TestBuild
             }
         }
 
-        //Rename the files according to the input from the user
-        //Still need to add some features to this, such as try/catch, confirmation dialogue box (to give user the chance to cancel) and a better success message box.
+        //Rename the files according to the input from the user. Confirmation dialogue pops up asking user if they are sure of changes. If yes, file rename runs.
         protected void renameFiles(string path)
         {
-            DirectoryInfo dir = new DirectoryInfo(path);
-            FileInfo[] files = dir.GetFiles();
-            foreach (FileInfo file in files)
+            if (MessageBox.Show("Rename " + currentIdentifier + "*.* " + "to " + newIdentifier + "*.*?" + "\n\n" + "ARE YOU SURE THESE CHANGES ARE CORRECT?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
-                File.Move(file.FullName, file.FullName.ToString().Replace(currentIdentifier, newIdentifier));
+                int counter = 0;
+
+                DirectoryInfo dir = new DirectoryInfo(path);
+                //Make sure that the files exist. If so, run the file rename and show success message. If not, show error message.
+                var checkFiles = dir.GetFiles(currentIdentifier + "*.*");
+                if (checkFiles.Length > 0) // files exist
+                {
+                    //Place files into array and loop through renaming them
+                    FileInfo[] files = dir.GetFiles();
+                    foreach (FileInfo file in files)
+                    {
+                        File.Move(file.FullName, file.FullName.ToString().Replace(currentIdentifier, newIdentifier));
+                        counter++;
+                    }
+
+                    MessageBox.Show("Successfully renamed " + counter + " files from " + currentIdentifier + "*.* " + "to " + newIdentifier + "*.*", "Success!");
+
+                    clearData();
+                    chooseDriveRadio.Focus();
+                }
+                else //files do not exist
+                {
+                    MessageBox.Show("There are no files in this directory that match your criteria. Please try again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    clearData();
+                }
             }
-            MessageBox.Show("Success!");
-            clearData();
         }
 
         //Clear all data from the controls on the form
         protected void clearData()
         {
             Utilities.ClearControls(this);
-
         }
 
         private void chooseDriveRadio_CheckedChanged(object sender, EventArgs e)
@@ -160,6 +197,5 @@ namespace TDSDataReader2.TestBuild
                 else renameFiles(pathToTdsFiles);
             }
         }
-
     }
 }

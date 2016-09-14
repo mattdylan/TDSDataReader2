@@ -55,7 +55,7 @@
             // renameButton
             // 
             this.renameButton.Enabled = false;
-            this.renameButton.Location = new System.Drawing.Point(380, 273);
+            this.renameButton.Location = new System.Drawing.Point(444, 277);
             this.renameButton.Name = "renameButton";
             this.renameButton.Size = new System.Drawing.Size(75, 36);
             this.renameButton.TabIndex = 1;
@@ -92,6 +92,7 @@
             this.drivesComboBox.Size = new System.Drawing.Size(75, 21);
             this.drivesComboBox.TabIndex = 5;
             this.drivesComboBox.SelectedIndexChanged += new System.EventHandler(this.drivesComboBox_SelectedIndexChanged);
+            this.drivesComboBox.Click += new System.EventHandler(this.drivesComboBox_Click);
             // 
             // chooseDriveRadio
             // 
@@ -171,6 +172,7 @@
             this.Controls.Add(this.browseButton);
             this.Name = "fileRenameForm";
             this.Text = "Rename TDS Data Files";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.fileRenameForm_FormClosing);
             this.Load += new System.EventHandler(this.fileRenameForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
