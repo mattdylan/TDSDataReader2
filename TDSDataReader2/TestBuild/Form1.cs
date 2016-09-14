@@ -14,8 +14,14 @@ namespace TDSDataReader2
         string fileLocation;
         string folderLocation;
 
-        //Open file browser for user to select where to save excel file
-        protected string openFileBrowser()
+
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        //Open folder browser for user to select where to save excel file
+        protected string openFolderBrowser()
         {
             string excelSavePath = "";
             FolderBrowserDialog fbd = new FolderBrowserDialog();
@@ -27,11 +33,6 @@ namespace TDSDataReader2
             return excelSavePath;
         }
         
-        public Form1()
-        {
-            InitializeComponent();
-        }
-
         private void SelectFile_Click(object sender, EventArgs e)
         {
 
@@ -107,7 +108,7 @@ namespace TDSDataReader2
             int counter = 0;
 
             //Gets the path where user wants to save the excel file
-            string excelSavePath = openFileBrowser();
+            string excelSavePath = openFolderBrowser();
 
             StreamReader reader = new StreamReader(fileLocation);
 
@@ -140,7 +141,6 @@ namespace TDSDataReader2
                 if (counter <= 1 && counter <= 5)
                 {
                     Debug.WriteLine("Left Readings");
-
                 }
                 //Printing left readings
                 if (counter >= 6 && counter <= (Global.GlobalVar + 5))
@@ -149,12 +149,13 @@ namespace TDSDataReader2
                     Debug.WriteLine(line);
                     xlWorkSheet.Cells[2, leftCounter] = line;
                     leftCounter = leftCounter + 3;
-
                 }
+                //Printing center readings
                 if (counter == Global.GlobalVar + 11)
                 {
                     Debug.WriteLine("Center Readings");
                 }
+
                 if (counter > (Global.GlobalVar + 11) && counter <= ((Global.GlobalVar * 2) + 11))
                 {
                     line = line.Trim(charsToTrim);
@@ -162,6 +163,7 @@ namespace TDSDataReader2
                     xlWorkSheet.Cells[2, centerCounter] = line;
                     centerCounter = centerCounter + 3;
                 }
+                //Printing right readings
                 if (counter == (Global.GlobalVar * 2) + 17)
                 {
                     Debug.WriteLine("Right Readings");
@@ -173,7 +175,6 @@ namespace TDSDataReader2
                     xlWorkSheet.Cells[2, rightcounter] = line;
                     rightcounter = rightcounter + 3;
                 }
-
             }
             Debug.WriteLine("Total line count:" + counter);
             Debug.WriteLine("Tube count:" + Global.GlobalVar);
