@@ -30,5 +30,13 @@ namespace TDSDataReader2.TestBuild
                 }
             }
         }
+
+        public static void closeConfirmation(object sender, FormClosingEventArgs e)
+        {
+            if (MessageBox.Show("Are you sure you want to exit?", "Exit Application", MessageBoxButtons.YesNo) != DialogResult.Yes)
+            {
+                e.Cancel = true;
+            }
+        }
     }
 }
